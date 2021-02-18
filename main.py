@@ -1,19 +1,30 @@
-import pyodbc
 from DBConnector import DBConnector
+from Procedure import Procedure
 
 database = 'Survey_Sample_A19'
 username = 'sa'
 password = '.'
 server = 'localhost'
 
+qtAnswerColumn = 'COALESCE((SELECT a.Answer_Value FROM Answer as a WHERE a.UserId = u.UserId AND a.SurveyId = ' \
+                 '<SURVEY_ID>AND a.QuestionId = <QUESTION_ID>), -1) AS ANS_Q<QUESTION_ID> '
+
+qtNullColumn = ' NULL AS ANS_Q<QUESTION_ID> '
+
+qtOuterUnionQuery = "SELECT UserId, <SURVEY_ID> as SurveyId, <DYNAMIC_QUESTION_ANSWERS> FROM [User] as u WHERE " \
+                    "EXISTS ( SELECT * FROM Answer as a WHERE u.UserId = a.UserId AND a.SurveyId = <SURVEY_ID>) "
+
 s = DBConnector(db_server=server, dbname=database, db_username=username, db_password=password)
-print(isinstance(s, DBConnector))
 
 s.selectBestDBDriverAvailable()
 s.open()
-row = s.conduit.cursor().execute("select * from Question").fetchone()
-if row:
-    print(row)
 
+sp = Procedure(qtAnswerColumn, qtNullColumn, qtOuterUnionQuery, s.conduit)
+sp.startProcedure()
 
-print(dir(s))
+# rows = s.conduit.cursor().execute("select * from Question").fetchall()
+#
+# for r in rows:
+#     print(r)
+# if row:
+#     print(row)

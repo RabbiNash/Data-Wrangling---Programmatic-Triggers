@@ -7,6 +7,7 @@ class DBConnector(BaseDBConnector):
 
     def __init__(self, db_server: str = None, dbname: str = None, db_username: str = None, \
                  db_password: str = None):
+        self.conduit = None
         if DBConnector._instance is None:
             super().__init__(db_server, dbname, db_username, db_password)
         else:
