@@ -1,4 +1,4 @@
-from DBConnector import DBConnector
+from pydwdsti.db.base.DBConnector import DBConnector
 from Procedure import Procedure
 
 database = 'Survey_Sample_A19'

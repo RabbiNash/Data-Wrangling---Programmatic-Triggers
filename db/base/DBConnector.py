@@ -1,4 +1,4 @@
-from BaseDBConnector import BaseDBConnector
+from pydwdsti.db.base.BaseDBConnector import BaseDBConnector
 import pyodbc
 
 
