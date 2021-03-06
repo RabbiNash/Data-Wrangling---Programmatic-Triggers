@@ -1,5 +1,5 @@
 from pydwdsti.db.base.DBConnector import DBConnector
-from Procedure import Procedure
+from pydwdsti.programmability.sp.Procedure import Procedure
 
 database = 'Survey_Sample_A19'
 username = 'sa'

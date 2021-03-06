@@ -1,4 +1,4 @@
-from Utils import Utils
+from pydwdsti.utils.Utils import Utils
 
 
 class Procedure:
