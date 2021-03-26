@@ -5,7 +5,7 @@ import pyodbc
 class DBConnector(BaseDBConnector):
     _instance = None
 
-    def __init__(self, db_server: str = None, dbname: str = None, db_username: str = None, \
+    def __init__(self, db_server: str = None, dbname: str = None, db_username: str = None,
                  db_password: str = None):
         self.conduit = None
         if DBConnector._instance is None:
@@ -17,9 +17,6 @@ class DBConnector(BaseDBConnector):
     def instance(self):
         return self._instance
 
-    def open(self):
-        super().open()
-
     @staticmethod
     def getInstance(db_server: str = None, dbname: str = None, db_username: str = None, db_password: str = None):
         if DBConnector.instance is None:
@@ -30,3 +27,7 @@ class DBConnector(BaseDBConnector):
         drivers = [driver for driver in pyodbc.drivers()]
         print(drivers)
         self.dbDriver = drivers[0]
+
+    def open(self):
+        super().open()
+        self.selectBestDBDriverAvailable()

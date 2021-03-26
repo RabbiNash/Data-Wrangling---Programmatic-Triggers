@@ -42,12 +42,13 @@ class BaseDBConnector(ABC):
                     # It has to be called in a child class, with a forced implementation
                     # selectBestDBDriverAvailable()
                     self.conduit = pyodbc.connect("DRIVER=" + self.driver \
-                                                   + ";SERVER=" + self.db_server + ";DATABASE=" + self.dbname + ";UID=" + self.db_username + ";PWD=" + self.dbpassword)
+                                                   + ";SERVER=" + self.db_server + ";DATABASE=" + self.dbname + ";UID=" + self.db_username + ";PWD=" + self.dbpassword, autocommit=True)
 
                     self.isDBConnectionOpen = True
 
                 except Exception as excp:
                     self.isDBConnectionOpen = False
+                    print(self.dbpassword)
                     raise Exception("Couldn't connect to the database").with_traceback(excp.__traceback__)
                     # Capture all exceptions (using the base class Exception)
                     # Creation of an anonymous instance of the Exception class and "raising" / throwing the
@@ -65,13 +66,20 @@ class BaseDBConnector(ABC):
             raise Exception("Inconsistent call to Open(), the connector is already connected to the data source")
 
     def Close(self: object) -> None:
-        pass  # TODO
+        if self.isDBConnectionOpen:
+            if self.conduit is not None:
 
-        # Example of a non-decorated, traditional setter method
-        # def setDbServer(self:object, value:str)->None:
-        #    self._dbserver = value
+                try:
+                    self.conduit.close()
 
-        # Series of properties decorators to engineer "getter" and "setter" methods
+                    self.isDBConnectionOpen = False
+                    self.conduit = None
+
+                except Exception as excp:
+                    raise Exception('Couldn''t close the DB connection').with_traceback(excp.__traceback__)
+            else:
+                raise Exception(
+                    'Internal DBConnector object inconsistency - Internal flag says ''Connected'' but pyodbc Connector is none')
 
     @property
     def dbServer(self: object) -> str:
@@ -94,14 +102,3 @@ class BaseDBConnector(ABC):
     @property
     def dbConduit(self: object):
         return self.__conduit
-
-    # TODO: Finish all required properties for your project
-
-    # This block of code wouldn't run, as DBCOnnector is abstract and connot be instanciated
-    # myDBConnector = DBConnector()
-
-    # Syntax diffrence between a decorated property and a standard method call
-    # myDBConnector.dbServer = "EF-CODD\SQL2019"
-    # myDBConnector.setDbServer("EF-CODD\SQL2019")
-    # Using the setter property
-    # serverName = myDBConnector.dbServer

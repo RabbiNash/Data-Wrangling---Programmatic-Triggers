@@ -2,12 +2,18 @@ from pydwdsti.utils.Utils import Utils
 
 
 class Procedure:
-    def __init__(self, ans_qt_answer_column, ans_qt_null_column, ans_qt_outer_union_query, conduit):
-        self.ansQTAnswerColumn = ans_qt_answer_column
-        self.ansQTNullColumn = ans_qt_null_column
-        self.ansQTOuterUnionQuery = ans_qt_outer_union_query
-        self.conduit = conduit
+    def __init__(self, conduit):
+        self.ansQTAnswerColumn = """
+                                COALESCE((SELECT a.Answer_Value 
+                                FROM Answer as a WHERE a.UserId = u.UserId AND a.SurveyId = <SURVEY_ID>
+                                AND a.QuestionId = <QUESTION_ID>), -1) AS ANS_Q<QUESTION_ID> """
 
+        self.ansQTNullColumn = ' NULL AS ANS_Q<QUESTION_ID> '
+
+        self.ansQTOuterUnionQuery = """SELECT UserId, <SURVEY_ID> as SurveyId, <DYNAMIC_QUESTION_ANSWERS> FROM [User] 
+                                       as u WHERE EXISTS ( SELECT * FROM Answer as a WHERE u.UserId = a.UserId 
+                                       AND a.SurveyId = <SURVEY_ID>)"""
+        self.conduit = conduit
         self.currentUnionQueryBlock = ''
         self.finalQuery = ''
 
@@ -50,10 +56,6 @@ class Procedure:
 
             if is_next:
                 self.finalQuery = self.finalQuery + ' UNION '
-
-        print(self.finalQuery)
-
-        # print(currentQuestion)
 
     @property
     def getFinalQuery(self):
