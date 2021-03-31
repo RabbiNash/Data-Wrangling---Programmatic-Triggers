@@ -48,7 +48,6 @@ class BaseDBConnector(ABC):
 
                 except Exception as excp:
                     self.isDBConnectionOpen = False
-                    print(self.dbpassword)
                     raise Exception("Couldn't connect to the database").with_traceback(excp.__traceback__)
                     # Capture all exceptions (using the base class Exception)
                     # Creation of an anonymous instance of the Exception class and "raising" / throwing the

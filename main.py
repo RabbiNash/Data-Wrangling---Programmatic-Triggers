@@ -2,8 +2,29 @@ from pydwdsti.db.base.DBConnector import DBConnector
 from pydwdsti.programmability.sp.Procedure import Procedure
 import os
 from os import path
-import pandas as pd
-import argparse as argp
+import subprocess
+import sys
+
+try:
+    import pandas as pd
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", 'pandas'])
+finally:
+    import pandas as pd
+
+try:
+    import argparse as argp
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", 'argparse'])
+finally:
+    import argparse as argp
+
+try:
+    import pyodbc
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", 'pyodbc'])
+finally:
+    import pyodbc
 
 
 def getSurveyStructure(conduit) -> pd.DataFrame:
@@ -104,12 +125,7 @@ def main():
 
     if cliArguments is not None:
         """
-        if you are using the Visual Studio Solution, you can set the command line parameters within VS (it's done 
-        in this example) For setting your own values in VS, please make sure to open the VS Project Properties (
-        Menu "Project, bottom choice), tab "Debug", textbox "Script arguments" If you are trying this script 
-        outside VS, you must provide command line parameters yourself, i.e. on Windows python.exe 
-        Python_SQL_Project_Sample_Solution --DBServer <YOUR_MSSQL> -d <DBName> -t True See the processCLIArguments(
-        ) function for accepted parameters 
+        If using visual studio or pycharm the command line arguments should be set within the IDE
         """
         try:
             connector = DBConnector(db_server=cliArguments["dbserver"], dbname=cliArguments["dbname"],
@@ -125,13 +141,14 @@ def main():
                 refreshViewInDB(connector, baseViewQuery, cliArguments["viewname"], cliArguments["persistencefilepath"])
                 if isPersistenceFileDirectoryWritable(cliArguments["persistencefilepath"]):
                     print("\nINFO - Content of SurveyResults table pickled in " + cliArguments[
-                            "persistencefilepath"] + "\n")
+                        "persistencefilepath"] + "\n")
                     surveyStructureDF.to_csv(cliArguments["persistencefilepath"])
 
             else:
                 persistedSurveyStructureDF: pd.DataFrame = pd.read_csv(cliArguments["persistencefilepath"])
                 if not surveyStructureDF.equals(persistedSurveyStructureDF):
-                    refreshViewInDB(connector, getAllSurveyDataQuery(connector), cliArguments["viewname"], cliArguments["persistencefilepath"])
+                    refreshViewInDB(connector, getAllSurveyDataQuery(connector), cliArguments["viewname"],
+                                    cliArguments["persistencefilepath"])
 
             surveyResultsToDF(connector, cliArguments["viewname"]).to_csv(cliArguments["resultsfilepath"])
 
